@@ -17,6 +17,7 @@ def reached_twice(changes: list) -> int:
     :param changes: list of value commulative to add to return the frequency.
     :return: the value of the frequency first reached twice.
     """
+    # TODO: use a set instead, more fast
     frequencies = [0, ]
     for change in cycle(changes):
         new_frequency = frequencies[-1] + change
@@ -29,7 +30,7 @@ if __name__ == "__main__":
     # for the first part I have to sum all the value of the file.
     # It could be considered the frequency at at the end of
     # the list of changes.
-    with open("./input_d1.txt") as handle:
+    with open("./input_d01.txt") as handle:
         changes = [int(line) for line in handle]
         final_freq = sum(changes)
         print(final_freq)
