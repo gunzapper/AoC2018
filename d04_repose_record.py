@@ -92,27 +92,46 @@ if __name__ == "__main__":
     # 2 if description start with 'Guard #' i find the id
     # the following logs are couple 'falls asleep' - 'wake-up'
     time_by_guard = sleeping_guard(logs)
+    # pprint(time_by_guard)
     # for each couple compute a timedelta
-    durations_by_guard = defaultdict(list)
+    durations_by_guard = defaultdict(int)
     for guard_id, sleep_time in time_by_guard.items():
         for asleep, awake in sleep_time:
-            durations_by_guard[guard_id].append(awake - asleep)
+            durations_by_guard[guard_id] += (awake.minute - asleep.minute)
+    # pprint(durations_by_guard)
 
     # and sums the timedeltas.
-    guard_by_sleep_sum = {}
-    for guard_id, durations in durations_by_guard.items():
-        # I cannot use sum with timedeltas
-        cums = durations[0]
-        for d in durations[1:]:
-            cums += d
-        guard_by_sleep_sum[cums] = guard_id
-
-    pprint(guard_by_sleep_sum)
+    guard_by_duration = {
+        durations: guard_id
+        for guard_id, durations in durations_by_guard.items()
+    }
+    # pprint(guard_by_sleep_sum)
 
     # find the guard with this time greater
-    longest_sleep_sum = max(guard_by_sleep_sum.keys())
-    napster = guard_by_sleep_sum[longest_sleep_sum]
-    print(napster)
+    longest_sleep_sum = max(guard_by_duration.keys())
+    napster = guard_by_duration[longest_sleep_sum]
+    print(f"the guard who often falls asleep is {napster}")
 
-    # 3 for the more asleep guard find the minute
-    # when he often falls asleep
+    # 3 for the more asleep guard
+    napster_times = time_by_guard[napster]
+
+    # collect of often per minute he felt asleep.
+    sleep_by_minute = defaultdict(int)
+    for asleep, awake in napster_times:
+        start_minute = asleep.minute
+        end_minute = awake.minute
+        for minute in range(start_minute, end_minute):
+            sleep_by_minute[minute] += 1
+    # pprint(sleep_by_minute)
+
+    # and find the minute when often he felt asleep
+    sleep_by_minute = {
+        freq: minute for minute, freq in sleep_by_minute.items()
+    }
+    max_freq = max(sleep_by_minute.keys())
+    more_often_minute = sleep_by_minute[max_freq]
+    print(
+        "the minute after 00:00 when more often sleep is ",
+        more_often_minute
+    )
+    print("The product is ", more_often_minute * int(napster))
