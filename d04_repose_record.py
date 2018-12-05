@@ -2,6 +2,7 @@ from datetime import datetime
 from operator import itemgetter
 from collections import defaultdict
 import re
+from pprint import pprint
 
 
 def parse_log(line: str):
@@ -13,7 +14,7 @@ def parse_log(line: str):
     """
     # convert the timestamp in datetime
     time = datetime.strptime(line[1:17], "%Y-%m-%d %H:%M")
-    descr = line[19:]
+    descr = (line[19:]).strip()
     return time, descr
 
 
@@ -22,7 +23,7 @@ def sleeping_guard(sorted_logs: str):
     Organize logs in a dict by guard.
     The dict has as key the guard id
     and for value a list of tuples.
-    Each tuple contain sleep_time, wake_time and duration of sleep.
+    Each tuple contains wake_time and duration of sleep.
 
     >>> from datetime import datetime
     >>> from pprint import pprint
@@ -66,35 +67,52 @@ def sleeping_guard(sorted_logs: str):
         m = pattern.search(log[1])
         if m:
             guard_id = m.group(0)
-        else:
-            if log[1] == "falls asleep":
-                sleep_time = log[0]
-            elif log[1] == "wakes up":
-                wake_time = log[0]
-                by_guard[guard_id].append((
-                    sleep_time,
-                    wake_time,
-                ))
+        elif log[1] == "falls asleep":
+            sleep_time = log[0]
+        elif log[1] == "wakes up":
+            wake_time = log[0]
+            by_guard[guard_id].append((
+                sleep_time,
+                wake_time,
+            ))
     return by_guard
 
 
 if __name__ == "__main__":
     # 0 read the logs
-    with open("./input_d03.txt") as handle:
+    with open("./input_d04.txt") as handle:
         # each log is formed by two parts date time string and description
         # use the datetime for organize a list of tuples
         # [(datetime, descriptions)]
         logs = [parse_log(line) for line in handle.readlines()]
 
-        # 1 sort by chronological order the logs
-        logs.sort(key=itemgetter(0))
+    # 1 sort by chronological order the logs
+    logs.sort(key=itemgetter(0))
 
-        # 2 if description start with 'Guard #' i find the id
-        # the bollowing logs are couple 'falls asleep' - 'wake-up'
-        # for each couple compute a timedelta.
-        sleeping_guard(logs)
-        # sums the time delta
-        # find the guard with this time greater
+    # 2 if description start with 'Guard #' i find the id
+    # the following logs are couple 'falls asleep' - 'wake-up'
+    time_by_guard = sleeping_guard(logs)
+    # for each couple compute a timedelta
+    durations_by_guard = defaultdict(list)
+    for guard_id, sleep_time in time_by_guard.items():
+        for asleep, awake in sleep_time:
+            durations_by_guard[guard_id].append(awake - asleep)
 
-        # 3 for the more asleep guard find the minute
-        # when he often falls asleep
+    # and sums the timedeltas.
+    guard_by_sleep_sum = {}
+    for guard_id, durations in durations_by_guard.items():
+        # I cannot use sum with timedeltas
+        cums = durations[0]
+        for d in durations[1:]:
+            cums += d
+        guard_by_sleep_sum[cums] = guard_id
+
+    pprint(guard_by_sleep_sum)
+
+    # find the guard with this time greater
+    longest_sleep_sum = max(guard_by_sleep_sum.keys())
+    napster = guard_by_sleep_sum[longest_sleep_sum]
+    print(napster)
+
+    # 3 for the more asleep guard find the minute
+    # when he often falls asleep
