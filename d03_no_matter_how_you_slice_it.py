@@ -118,6 +118,34 @@ def total_intersect_walking_ant(rects):
     ])
 
 
+def total_intersect(rects):
+    """
+    Walking determine the total intersect using sets.
+    >>> total_intersect([
+    ...     Rect(1, 1, 3, 4, 4), Rect(2, 1, 3, 4, 4), Rect(3, 1, 3, 4, 4)
+    ... ])
+    16
+    >>> total_intersect([
+    ...     Rect(1, 1, 3, 4, 4), Rect(2, 3, 1, 4, 4), Rect(3, 5, 5, 2, 2)
+    ... ])
+    4
+    >>> total_intersect([
+    ...     Rect(1, 1, 3, 4, 4),
+    ...     Rect(2, 3, 1, 4, 4),
+    ...     Rect(3, 5, 5, 2, 2),
+    ...     Rect(4, 3, 3, 2, 2),
+    ... ])
+    4
+    """
+    total = []
+    for i, rect in enumerate(rects):
+        others = rects[:i] + rects[i + 1:]
+        union_others = set.union(*[r.to_set() for r in others])
+        rect_intersect = union_others.intersection(rect.to_set())
+        total.append(rect_intersect)
+    return len(list(set.union(*total)))
+
+
 def with_no_intersect(rects):
     """
     find rect that has no intersections.
@@ -138,5 +166,5 @@ if __name__ == "__main__":
     with open("./input_d03.txt") as handle:
         rects = [parse(line) for line in handle.readlines()]
 
-    # print(total_intersect_walking_ant(rects))
+    print(total_intersect(rects))
     print(with_no_intersect(rects))
