@@ -2,7 +2,6 @@ from datetime import datetime
 from operator import itemgetter
 from collections import defaultdict
 import re
-from pprint import pprint
 
 
 def parse_log(line: str):
@@ -49,17 +48,17 @@ def sleeping_guard(sorted_logs: str):
     >>> pprint(sleeping_guard(logs))
     defaultdict(<class 'list'>,
                 {1: [(datetime.datetime(1518, 11, 1, 0, 5),
-                        datetime.datetime(1518, 11, 1, 0, 25)),
-                       (datetime.datetime(1518, 11, 1, 0, 30),
-                        datetime.datetime(1518, 11, 1, 0, 55)),
-                       (datetime.datetime(1518, 11, 3, 0, 24),
-                        datetime.datetime(1518, 11, 3, 0, 29))],
+                      datetime.datetime(1518, 11, 1, 0, 25)),
+                     (datetime.datetime(1518, 11, 1, 0, 30),
+                      datetime.datetime(1518, 11, 1, 0, 55)),
+                     (datetime.datetime(1518, 11, 3, 0, 24),
+                      datetime.datetime(1518, 11, 3, 0, 29))],
                  99: [(datetime.datetime(1518, 11, 2, 0, 40),
-                         datetime.datetime(1518, 11, 2, 0, 50)),
-                        (datetime.datetime(1518, 11, 4, 0, 36),
-                         datetime.datetime(1518, 11, 4, 0, 46)),
-                        (datetime.datetime(1518, 11, 5, 0, 45),
-                         datetime.datetime(1518, 11, 5, 0, 55))]})
+                       datetime.datetime(1518, 11, 2, 0, 50)),
+                      (datetime.datetime(1518, 11, 4, 0, 36),
+                       datetime.datetime(1518, 11, 4, 0, 46)),
+                      (datetime.datetime(1518, 11, 5, 0, 45),
+                       datetime.datetime(1518, 11, 5, 0, 55))]})
     """
     pattern = re.compile(r"(?<=^Guard #)\d+")
     by_guard = defaultdict(list)
