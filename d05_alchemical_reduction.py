@@ -1,6 +1,7 @@
 import string
 from itertools import chain
 import re
+from operator import itemgetter
 
 lower_upper = (
     ''.join(c) for c in zip(string.ascii_lowercase, string.ascii_uppercase)
@@ -45,5 +46,21 @@ with open("./input_d05.txt") as handle:
 polymer = polymer[:-1]
 
 print(len(polymer))
-polymer = reaction(polymer)
-print(len(polymer))
+reduced_polymer = reaction(polymer)
+print(len(reduced_polymer))
+
+
+# part 2
+# recharge the generator
+lower_upper = (
+    ''.join(c) for c in zip(string.ascii_lowercase, string.ascii_uppercase)
+)
+
+# store the values inside
+res = {}
+for op in lower_upper:
+    op_patt = re.compile(f"[{op}]")
+    mod_polymer = re.sub(op_patt, "", polymer)
+    res[op] = len(reaction(mod_polymer))
+
+print(min(list(res.items()), key=itemgetter(1)))
