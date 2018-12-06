@@ -126,7 +126,7 @@ if __name__ == "__main__":
 
     # and find the minute when often he felt asleep
     more_often_sleep = max(
-        [it for it in sleep_by_minute.items()], key=itemgetter(1)
+        list(sleep_by_minute.items()), key=itemgetter(1)
     )
     more_often_minute = more_often_sleep[0]
     print(
@@ -143,7 +143,7 @@ if __name__ == "__main__":
                 freq_by_guard_minute[(guard, minute)] += 1
     # pprint(freq_by_guard_minute)
     more_often_sleep = max(
-        [it for it in freq_by_guard_minute.items()], key=itemgetter(1)
+        list(freq_by_guard_minute.items()), key=itemgetter(1)
     )
     print(
         "the pair guard minute appears more often, for times", more_often_sleep
