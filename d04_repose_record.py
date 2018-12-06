@@ -48,13 +48,13 @@ def sleeping_guard(sorted_logs: str):
     ... ]
     >>> pprint(sleeping_guard(logs))
     defaultdict(<class 'list'>,
-                {'1': [(datetime.datetime(1518, 11, 1, 0, 5),
+                {1: [(datetime.datetime(1518, 11, 1, 0, 5),
                         datetime.datetime(1518, 11, 1, 0, 25)),
                        (datetime.datetime(1518, 11, 1, 0, 30),
                         datetime.datetime(1518, 11, 1, 0, 55)),
                        (datetime.datetime(1518, 11, 3, 0, 24),
                         datetime.datetime(1518, 11, 3, 0, 29))],
-                 '99': [(datetime.datetime(1518, 11, 2, 0, 40),
+                 99: [(datetime.datetime(1518, 11, 2, 0, 40),
                          datetime.datetime(1518, 11, 2, 0, 50)),
                         (datetime.datetime(1518, 11, 4, 0, 36),
                          datetime.datetime(1518, 11, 4, 0, 46)),
@@ -66,7 +66,7 @@ def sleeping_guard(sorted_logs: str):
     for log in sorted_logs:
         m = pattern.search(log[1])
         if m:
-            guard_id = m.group(0)
+            guard_id = int(m.group(0))
         elif log[1] == "falls asleep":
             sleep_time = log[0]
         elif log[1] == "wakes up":
@@ -125,13 +125,29 @@ if __name__ == "__main__":
     # pprint(sleep_by_minute)
 
     # and find the minute when often he felt asleep
-    sleep_by_minute = {
-        freq: minute for minute, freq in sleep_by_minute.items()
-    }
-    max_freq = max(sleep_by_minute.keys())
-    more_often_minute = sleep_by_minute[max_freq]
+    more_often_sleep = max(
+        [it for it in sleep_by_minute.items()], key=itemgetter(1)
+    )
+    more_often_minute = more_often_sleep[0]
     print(
         "the minute after 00:00 when more often sleep is ",
         more_often_minute
     )
-    print("The product is ", more_often_minute * int(napster))
+    print("The product is ", more_often_minute * napster)
+
+    # 4 find the couple guard x minute more often sleep
+    freq_by_guard_minute = defaultdict(int)
+    for guard, times in time_by_guard.items():
+        for asleep, awake in times:
+            for minute in range(asleep.minute, awake.minute):
+                freq_by_guard_minute[(guard, minute)] += 1
+    # pprint(freq_by_guard_minute)
+    more_often_sleep = max(
+        [it for it in freq_by_guard_minute.items()], key=itemgetter(1)
+    )
+    print(
+        "the pair guard minute appears more often, for times", more_often_sleep
+    )
+    print(
+        "and the product is ", more_often_sleep[0][0] * more_often_sleep[0][1]
+    )
