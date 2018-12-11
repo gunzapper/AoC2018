@@ -71,64 +71,75 @@ def greatest_area(kernels) -> int:
     # bubbles can expand only among these limits
     # (crossed these there is ich sint leones of infinite expantion
     # and I need a way to avoid the infinite loop of infinite expantion)
-    nord_limit = max(kernels, key=itemgetter(1))
-    south_limit = min(kernels, key=itemgetter(1))
-    west_limit = max(kernels, key=itemgetter(0))
-    east_limit = min(kernels, key=itemgetter(0))
+    nord_limit = min(kernels, key=itemgetter(1))[1]
+    south_limit = max(kernels, key=itemgetter(1))[1]
+    west_limit = min(kernels, key=itemgetter(0))[0]
+    east_limit = max(kernels, key=itemgetter(0))[0]
+    print("limits of our matrix")
+    print(nord_limit, south_limit, west_limit, east_limit)
+    print("---------------------------------------------")
     # init
     # for all point in each bubble
     voronoi_bubbles = [set([coord]) for coord in kernels]
     # for bubble surfaces
     bubbles_borders = [set([coord, ]) for coord in kernels]
     is_expanded = True
-    touch_the_limits = set([])
     while is_expanded:
         is_expanded = False
         # each loop add coordinates four coordinate using
         # nearest cross cell.
         covered_points = [p for b in voronoi_bubbles for p in b]
         bubbles_borders_next = []
-        contented_point = set([])
+        contented_points = set([])
         for i, bubble in enumerate(voronoi_bubbles):
             new_points = new_border(bubble, bubbles_borders[i])
             # check if points are contented
-            new_contented_points, free_points = point_contented(
+            new_contented_points = point_contented(
                 new_points, bubbles_borders_next
             )
+
+            free_points = [
+                p for p in new_points if p not in new_contented_points
+            ]
 
             for point in new_contented_points:
                 for each_bor in bubbles_borders_next:
                     if point in each_bor:
                         each_bor.remove(point)
+                contented_points.add(new_contented_points)
 
             # print(new_points)
             next_border = set([])
             for new_point in free_points:
-                if not (
+                if (
                     # the new_point should be inside the geographic limits
-                    nord_limit[1] >= new_point[1] >= south_limit[1] and
-                    west_limit[0] >= new_point[0] >= east_limit[0]
-                ):
-                    touch_the_limits.add(i)
-                elif (
+                    nord_limit <= new_point[1] <= south_limit and
+                    west_limit <= new_point[0] <= east_limit and
                     # not other bubble should have the new_point
                     new_point not in covered_points
                     # the new_point isn't contented
-                    and new_point not in contented_point
+                    and new_point not in contented_points
                 ):
                     next_border.add(new_point)
+                    bubble.add(new_point)
                     is_expanded = True
             bubbles_borders_next.append(next_border)
-        bubbles_borders = bubbles_borders_next
 
-        for i, bubble in enumerate(voronoi_bubbles):
-            voronoi_bubbles[i] = bubble | set(bubbles_borders[i])
-        # pprint(voronoi_bubbles)
-
-    print(touch_the_limits)
     finite_bubbles = []
     for i, bubble in enumerate(voronoi_bubbles):
-        if i not in touch_the_limits:
+        nordest = min(bubble, key=itemgetter(1))[1]
+        southest = max(bubble, key=itemgetter(1))[1]
+        westest = min(bubble, key=itemgetter(0))[0]
+        eastest = max(bubble, key=itemgetter(0))[0]
+        print(f"limits of {i}")
+        print(nordest, southest, westest, eastest)
+        print("---------------------------------------------")
+        if (
+            nord_limit < nordest and
+            south_limit > southest and
+            west_limit < westest and
+            east_limit > eastest
+        ):
             finite_bubbles.append(bubble)
 
     return max([len(b) for b in finite_bubbles])
