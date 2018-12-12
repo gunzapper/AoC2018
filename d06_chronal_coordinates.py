@@ -95,4 +95,4 @@ if __name__ == "__main__":
     with open("./input_d06.txt") as handle:
         kernels = [parse(line) for line in handle.readlines()]
 
-    greatest_area(kernels)
+    print(greatest_area(kernels))
