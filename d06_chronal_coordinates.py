@@ -43,13 +43,15 @@ def distance(p, q) -> int:
     return sum(abs(comp_p - comp_q) for comp_p, comp_q in zip(p, q))
 
 
-def greatest_area(kernels) -> int:
+def greatest_area_around_a_kernel(kernels) -> int:
     """
     Given a list of 2D kernel coordinate,
     find the greatest area using
     manhattan distance
 
-    >>> greatest_area([(1, 1), (1, 6), (8, 3), (3, 4), (5, 5), (8, 9)])
+    >>> greatest_area_around_a_kernel(
+    ...     [(1, 1), (1, 6), (8, 3), (3, 4), (5, 5), (8, 9)]
+    ... )
     17
     """
     # map_limits
@@ -91,8 +93,41 @@ def greatest_area(kernels) -> int:
     return max([len(a) for a in finite_areas])
 
 
+def greatest_area_between_kernels(kernels, max_total_distance) -> int:
+    """
+    Given a list of 2D kernel coordinate,
+    find the greatest area between kernels
+    with a total distance between then equal to
+    max_total_distance.
+    Distances are computed using manhattan.
+
+    >>> greatest_area_between_kernels(
+    ...     [(1, 1), (1, 6), (8, 3), (3, 4), (5, 5), (8, 9)],
+    ...     32
+    ... )
+    16
+    """
+    # map_limits
+    north_limit, south_limit, west_limit, east_limit = find_borders(kernels)
+
+    area = []
+    # generate all points of the matrix
+    all_points = product(
+        range(west_limit - 1, east_limit + 2),
+        range(north_limit - 1, south_limit + 2)
+    )
+    # find the points between kernels
+    for p in all_points:
+        tot_distance = sum([distance(k, p) for k in kernels])
+        if tot_distance < max_total_distance:
+            area.append(p)
+
+    return len(area)
+
+
 if __name__ == "__main__":
     with open("./input_d06.txt") as handle:
         kernels = [parse(line) for line in handle.readlines()]
 
-    print(greatest_area(kernels))
+    print(greatest_area_around_a_kernel(kernels))
+    print(greatest_area_between_kernels(kernels, 10_000))
