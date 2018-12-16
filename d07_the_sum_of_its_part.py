@@ -86,11 +86,14 @@ def correct_order(lines):
     """
     graph = lines2graph(lines)
 
+    from pprint import pprint
+    pprint(graph)
     beging = find_begin(graph)
     stop = find_stop(graph)
+    print(beging, stop)
 
     correct_list = [beging]
-    forks = [beging]
+    forks = set([beging])
 
     while True:
         try:
@@ -101,9 +104,15 @@ def correct_order(lines):
             forks.remove(previous_value)
             if graph[previous_value][0] != stop:
                 # normally - follow the links
-                forks.extend(graph[previous_value])
-                next_value = graph[previous_value][0]
-                correct_list.append(next_value)
+                forks = forks.union(set(graph[previous_value]))
+                if stop in forks:
+                    forks.remove(stop)
+                # next values will be no already in correct_list
+                for candidate in graph[previous_value]:
+                    if candidate not in correct_list:
+                        next_value = candidate
+                        correct_list.append(next_value)
+                        break
             else:
                 # other wise fish on forks
                 next_value = previous_value
@@ -111,3 +120,11 @@ def correct_order(lines):
                     correct_list.append(next_value)
     correct_list.append(stop)
     return ''.join(correct_list)
+
+
+if __name__ == "__main__":
+
+    with open("./input_d07.txt", "r") as handle:
+        lines = handle.readlines()
+
+    print(correct_order(lines))
