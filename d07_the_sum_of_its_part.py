@@ -1,5 +1,4 @@
 from collections import defaultdict
-from pprint import pprint
 
 
 def lines2graph(lines):
@@ -24,8 +23,13 @@ def lines2graph(lines):
         start_node = line[5]
         end_node = line[36]
         graph[start_node].append(end_node)
+    # orderd values - with stop always at end
+    stop = find_stop(graph)
     for key, values in graph.items():
         values.sort()
+        if stop in values:
+            values.remove(stop)
+            values.append(stop)
     return graph
 
 
@@ -95,9 +99,6 @@ def correct_order(lines):
             break
         else:
             forks.remove(previous_value)
-            # POTENTIAL ERROR: this is working  because the stop follow
-            # the alphabetical order!
-            # change to do, put always stop at the end of the listes!
             if graph[previous_value][0] != stop:
                 # normally - follow the links
                 forks.extend(graph[previous_value])
