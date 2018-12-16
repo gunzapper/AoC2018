@@ -1,4 +1,5 @@
 from collections import defaultdict
+from pprint import pprint
 
 
 def lines2graph(lines):
@@ -80,17 +81,32 @@ def correct_order(lines):
     'CABDFE'
     """
     graph = lines2graph(lines)
+
     beging = find_begin(graph)
     stop = find_stop(graph)
-    correct_list = [beging]
-    while True:
-        previous_value = correct_list[-1]
-        if graph[previous_value][0] != stop:
-            next_value = graph[previous_value].pop(0)
-            correct_list.append(next_value)
-            print(correct_list)
-        else:
-            break
-    return ''.join(correct_list)
-        
 
+    correct_list = [beging]
+    forks = [beging]
+
+    while True:
+        try:
+            previous_value = min(forks)
+        except ValueError:
+            break
+        else:
+            forks.remove(previous_value)
+            # POTENTIAL ERROR: this is working  because the stop follow
+            # the alphabetical order!
+            # change to do, put always stop at the end of the listes!
+            if graph[previous_value][0] != stop:
+                # normally - follow the links
+                forks.extend(graph[previous_value])
+                next_value = graph[previous_value][0]
+                correct_list.append(next_value)
+            else:
+                # other wise fish on forks
+                next_value = previous_value
+                if next_value not in correct_list:
+                    correct_list.append(next_value)
+    correct_list.append(stop)
+    return ''.join(correct_list)
