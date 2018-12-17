@@ -1,4 +1,5 @@
 from collections import defaultdict
+from copy import copy
 
 
 def lines2graph(lines):
@@ -23,6 +24,7 @@ def lines2graph(lines):
         start_node = line[5]
         end_node = line[36]
         graph[start_node].append(end_node)
+    # format the graph
     # orderd values - with stop always at end
     stop = find_stop(graph)
     for key, values in graph.items():
@@ -44,11 +46,11 @@ def find_begin(graph):
     ...     'D': ['E'],
     ...     'F': ['E'],
     ... })
-    'C'
+    {'C'}
     """
     values = set.union(*[set(v) for v in graph.values()])
     keys = set(graph.keys())
-    return list(keys - values)[0]
+    return keys - values
 
 
 def find_stop(graph):
@@ -62,11 +64,11 @@ def find_stop(graph):
     ...     'D': ['E'],
     ...     'F': ['E'],
     ... })
-    'E'
+    {'E'}
     """
     values = set.union(*[set(v) for v in graph.values()])
     keys = set(graph.keys())
-    return list(values - keys)[0]
+    return values - keys
 
 
 def correct_order(lines):
@@ -86,39 +88,32 @@ def correct_order(lines):
     """
     graph = lines2graph(lines)
 
-    from pprint import pprint
-    pprint(graph)
     beging = find_begin(graph)
     stop = find_stop(graph)
-    print(beging, stop)
 
-    correct_list = [beging]
-    forks = set([beging])
+    correct_list = []
+    forks = copy(beging)
 
     while True:
         try:
             previous_value = min(forks)
+            if previous_value not in correct_list:
+                correct_list.append(previous_value)
         except ValueError:
             break
         else:
-            forks.remove(previous_value)
-            if graph[previous_value][0] != stop:
+            forks -= {previous_value}
+            if graph[previous_value][0] not in stop:
                 # normally - follow the links
                 forks = forks.union(set(graph[previous_value]))
-                if stop in forks:
-                    forks.remove(stop)
+                forks -= stop
                 # next values will be no already in correct_list
                 for candidate in graph[previous_value]:
                     if candidate not in correct_list:
                         next_value = candidate
                         correct_list.append(next_value)
                         break
-            else:
-                # other wise fish on forks
-                next_value = previous_value
-                if next_value not in correct_list:
-                    correct_list.append(next_value)
-    correct_list.append(stop)
+    correct_list.append(list(stop)[0])
     return ''.join(correct_list)
 
 
