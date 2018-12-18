@@ -88,31 +88,25 @@ def correct_order(lines):
     """
     graph = lines2graph(lines)
 
-    beging = find_begin(graph)
+    begin = find_begin(graph)
     stop = find_stop(graph)
+    print(begin, stop)
 
     correct_list = []
-    forks = copy(beging)
+    forks = copy(begin)
 
     while True:
         try:
             previous_value = min(forks)
-            if previous_value not in correct_list:
-                correct_list.append(previous_value)
         except ValueError:
             break
         else:
+            if previous_value not in correct_list:
+                correct_list.append(previous_value)
             forks -= {previous_value}
-            if graph[previous_value][0] not in stop:
-                # normally - follow the links
-                forks = forks.union(set(graph[previous_value]))
-                forks -= stop
-                # next values will be no already in correct_list
-                for candidate in graph[previous_value]:
-                    if candidate not in correct_list:
-                        next_value = candidate
-                        correct_list.append(next_value)
-                        break
+            # follow the links, collect nodes
+            forks = forks.union(set(graph[previous_value]))
+            forks -= stop
     correct_list.append(list(stop)[0])
     return ''.join(correct_list)
 
